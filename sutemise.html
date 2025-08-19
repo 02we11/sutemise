@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>捨てみせのツイートクイズ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f8f8f8;
+      padding: 20px;
+      line-height: 1.8;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .quiz-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .question {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .options button {
+      display: block;
+      margin: 8px 0;
+      padding: 10px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f0f0f0;
+      cursor: pointer;
+      text-align: left;
+    }
+    .options button:hover {
+      background: #e0e0e0;
+    }
+    .result {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .next-btn {
+      margin-top: 15px;
+      padding: 10px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .next-btn:hover {
+      background: #005fa3;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>捨てみせのツイートクイズ</h1>
+  <div class="quiz-container" id="quiz"></div>
+
+  <script>
+    const quizData = [
+      {
+        type: "choice",
+        question: "俺が鬱という漢字を知ったきっかけが憂鬱じゃなくて〇〇だったのかっこよすぎる",
+        correct: "鬱金香",
+        options: "鬱蒼", "鬱江", "鬱嶽"]
+      },
+      {
+        type: "choice",
+        question: "めざましじゃんけんの目的は勝つことではなく〇〇こと",
+        correct: "目を覚ます",
+        options: ["人間と繋がる", "同じ時間を共有する", "今日を始める"]
+      },
+      {
+        type: "input",
+        question: "チー牛かと思ったら〇〇だった",
+        correct: "誇り高き水牛"
+      }
+    ];
+
+    let current = 0;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function loadQuiz() {
+      const quizContainer = document.getElementById("quiz");
+      quizContainer.innerHTML = "";
+
+      const data = quizData[current];
+      const qEl = document.createElement("div");
+      qEl.className = "question";
+      qEl.textContent = (current + 1) + "問目: " + data.question;
+      quizContainer.appendChild(qEl);
+
+      if (data.type === "choice") {
+        const optionsEl = document.createElement("div");
+        optionsEl.className = "options";
+
+        let allOptions = [data.correct, ...data.options];
+        allOptions = shuffle(allOptions);
+
+        allOptions.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.textContent = opt;
+          btn.onclick = () => checkAnswer(opt, data.correct);
+          optionsEl.appendChild(btn);
+        });
+
+        quizContainer.appendChild(optionsEl);
+      } else if (data.type === "input") {
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "答えを入力";
+        input.style.width = "100%";
+        input.style.padding = "8px";
+        input.id = "answerInput";
+
+        const submitBtn = document.createElement("button");
+        submitBtn.textContent = "回答する";
+        submitBtn.className = "next-btn";
+        submitBtn.onclick = () => {
+          const val = document.getElementById("answerInput").value.trim();
+          checkAnswer(val, data.correct);
+        };
+
+        quizContainer.appendChild(input);
+        quizContainer.appendChild(submitBtn);
+      }
+
+      const resultEl = document.createElement("div");
+      resultEl.id = "result";
+      resultEl.className = "result";
+      quizContainer.appendChild(resultEl);
+    }
+
+    function checkAnswer(answer, correct) {
+      const resultEl = document.getElementById("result");
+      if (answer === correct) {
+        resultEl.textContent = "正解！ ✅";
+        resultEl.style.color = "green";
+      } else {
+        resultEl.textContent = "不正解 ❌ 正解は「" + correct + "」";
+        resultEl.style.color = "red";
+      }
+
+      if (current < quizData.length - 1) {
+        const nextBtn = document.createElement("button");
+        nextBtn.textContent = "次の問題へ";
+        nextBtn.className = "next-btn";
+        nextBtn.onclick = () => {
+          current++;
+          loadQuiz();
+        };
+        resultEl.appendChild(document.createElement("br"));
+        resultEl.appendChild(nextBtn);
+      } else {
+        const endMsg = document.createElement("div");
+        endMsg.textContent = "全問終了！おつかれさまでした 🎉";
+        endMsg.style.marginTop = "15px";
+        resultEl.appendChild(endMsg);
+      }
+    }
+
+    loadQuiz();
+  </script>
+</body>
+</html>
